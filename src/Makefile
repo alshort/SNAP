@@ -1,154 +1,70 @@
-#
-# Build SNAP
-#
-OPT = yes
-FFLAGS =
-FFLAG2 =
-DEFS =
-PP =
+A_PREFIX=snap
+A_SUFFIX=_mkl_vml
+A_TARGET=$(A_PREFIX)$(A_SUFFIX)
 
-MPI = yes
-OPENMP = yes
+CC=mpiicc			# C compiler command
+CFLAGS=-mkl -O3 -xAVX -std=c99 -fopenmp -parallel -DUSEMKL -DUSEVML	# C compiler flags
+#CC=mpicc
+#CFLAGS=-O3 -std=c99 -fopenmp -lm #-wall	# C compiler flags
+LDFLAGS=			# Linker flags, e.g. -L<lib dir> if you have libraries in a nonstandard directory <lib dir>
+LIBS=				# Libraries to pass to the linker, e.g. -l<library>
+CPPFLAGS=			# (Objective) C/C++ preprocessor flags, e.g. -I<include dir> if you have headers in a nonstandard directory <include dir>
+CXX=icc				# C++ compiler command
+CXXFLAGS=-O3 -std=c++11 -openmp	# C++ compiler flags
+CXXCPP=				# C++ preprocessor flags
 
-FORTRAN = mpif90
-#FORTRAN = mpifort
-#FORTRAN = ftn
-#FORTRAN = mpiifort
+A_FILES := $(wildcard *.cpp) $(wildcard *.c)
+A_OBJS := $(sort $(patsubst %.c, %.o, $(patsubst %.cpp, %.o, $(A_FILES))))
 
-TARGET = gsnap
-#TARGET = isnap
-#TARGET = ksnap
+INPUT_FILE=scale_test_8_4.inp
+OUTPUT_PREFIX=snap_test
+OUTPUT_SUFFIX=.out
+OUTPUT_FILE=$(OUTPUT_PREFIX)$(OUTPUT_SUFFIX)
 
-#HASWELL = yes
+SRCS = snap.h snap_main.c utils.c version.c plib.c geom.c \
+       sn.c data.c control.c input.c setup.c dealloc.c \
+       translv.c solvar.c outer.c expxs.c inner.c sweep.c \
+       octsweep.c dim1_sweep.c dim3_sweep.c output.c time.c mms.c
 
-ifeq ($(MPI),yes)
-  DEFS := $(DEFS) MPI
-else
-  ifeq ($(TARGET),gsnap)
-    FORTRAN = gfortran
-  else
-    FORTRAN = ifort
-  endif
-endif
 
-ifeq ($(OPENMP),yes)
-  DEFS := $(DEFS) OPENMP
-  ifeq ($(TARGET),gsnap)
-    OMPFLAG = -fopenmp
-  else
-    # Assuming Intel 15, if 14, use -openmp
-    OMPFLAG = -qopenmp
-  endif
-else
-  OMPFLAG =
-endif
+all: $(A_TARGET) 			# Build all targets
 
-PPFLAGS = $(foreach def,$(DEFS),-D$(def))
+vars:					# Show Makefile variable values
+	@echo "       CC "$(CC)
+	@echo " A_TARGET "$(A_TARGET)
+	@echo "   CFLAGS "$(CFLAGS)
+	@echo "  LDFLAGS "$(LDFLAGS)
+	@echo "     LIBS "$(LIBS)@egrep "[a-z]\w+:" Makefile | sort
 
-ifeq ($(TARGET),gsnap)
-  FFLAGS = -Ofast -funroll-loops -march=native $(OMPFLAG)
-  FFLAG2 =
-  PP = cpp
-  ifeq ($(OPT),no)
-    TARGET = gsnap_db
-    FFLAGS = -O0 $(OMPFLAG) -g -fbounds-check -fbacktrace
-    FFLAG2 =
-  endif
-endif
+clean:					# Remove make build object and target files
+	-rm -f *{.o,~} $(A_TARGET)
 
-ifeq ($(TARGET),isnap)
-  FFLAGS = -O3 $(OMPFLAG) -ip -align array32byte -qno-opt-dynamic-align -fno-fnalias -fp-model fast -fp-speculation fast
-  ifeq ($(HASWELL),yes)
-    FFLAGS := $(FFLAGS) -xcore-avx2
-  else
-    FFLAGS := $(FFLAGS) -xHost
-  endif
-  FFLAG2 =
-  PP = fpp
-  ifeq ($(OPT),no)
-    TARGET = isnap_db
-    FFLAGS = -O0 $(OMPFLAG) -g -check bounds -traceback -warn unused
-    FFLAG2 =
-  endif
-endif
+cleanout: clean
+	-rm -f $(OUTPUT_FILE)
 
-ifeq ($(TARGET),ksnap)
-  FFLAGS = -O3 $(OMPFLAG) -xmic-avx512 -ip -align array64byte -qno-opt-dynamic-align -fp-model fast -fp-speculation fast -fno-alias -fno-fnalias
-  FFLAG2 =
-  PP = fpp
-  ifeq ($(OPT),no)
-    TARGET = ksnap_db
-    FFLAGS = -O0 $(OMPFLAG) -g -check bounds -traceback -warn unused
-    FFLAG2 =
-  endif
-endif
+.PHONY:	clean vars help install rebuild
 
-.SUFFIXES:	.F90 .f90 .o
+rebuild: clean $(A_TARGET)		# Clean and build target
 
-OBJS = global.o snap_main.o utils.o version.o plib.o geom.o sn.o \
-       data.o control.o input.o setup.o dealloc.o translv.o solvar.o \
-       outer.o expxs.o inner.o sweep.o octsweep.o dim1_sweep.o \
-       dim3_sweep.o output.o time.o mms.o analyze.o thrd_comm.o mkba_sweep.o
+install: 				# Build and install
 
-SRCS = global.f90 snap_main.f90 utils.f90 version.f90 plib.F90 geom.f90 \
-       sn.f90 data.f90 control.f90 input.f90 setup.f90 dealloc.f90 \
-       translv.f90 solvar.f90 outer.f90 expxs.f90 inner.f90 sweep.f90 \
-       octsweep.f90 dim1_sweep.f90 dim3_sweep.f90 output.f90 \
-       time.F90 mms.f90 analyze.f90 thrd_comm.f90 mkba_sweep.f90
+run: $(A_TARGET)
+	./$(A_TARGET) --fi $(INPUT_FILE) --fo $(OUTPUT_FILE)
 
-$(TARGET) :	$(OBJS)
-		$(FORTRAN) $(FFLAGS) $(FFLAG2) -o $@ $(OBJS)
+$(A_TARGET): $(A_OBJS)			# Build target and its required object files
+	$(CC) $(CFLAGS) $(CPPFLAGS) $^ -o $@ $(LDFLAGS) $(LIBS)
 
-version.o :	global.o
-geom.o :	global.o
-sn.o :		global.o
-data.o :	global.o
-control.o :	global.o
-time.o :	global.o
-plib.o :	global.o time.o
-thrd_comm.o:	global.o plib.o
-expxs.o :	global.o geom.o sn.o data.o
-solvar.o :	global.o plib.o geom.o sn.o data.o control.o
-mms.o:		global.o geom.o sn.o data.o control.o plib.o
-dealloc.o :	global.o sn.o data.o mms.o geom.o solvar.o control.o
-utils.o :	global.o dealloc.o plib.o control.o
-analyze.o:	global.o control.o geom.o data.o solvar.o plib.o
-input.o :	global.o plib.o geom.o sn.o data.o control.o utils.o time.o
-setup.o :	global.o geom.o sn.o data.o control.o mms.o utils.o time.o \
-		plib.o
-output.o :	global.o geom.o sn.o data.o control.o utils.o solvar.o \
-		mms.o time.o plib.o
-snap_main.o :	global.o utils.o version.o input.o setup.o output.o time.o \
-		dealloc.o plib.o control.o
-dim1_sweep.o :	global.o geom.o sn.o data.o control.o plib.o
-dim3_sweep.o :	global.o plib.o geom.o sn.o data.o control.o thrd_comm.o
-mkba_sweep.o :	global.o plib.o geom.o sn.o data.o control.o thrd_comm.o
-octsweep.o :	global.o geom.o sn.o data.o control.o solvar.o \
-		thrd_comm.o dim1_sweep.o dim3_sweep.o mkba_sweep.o
-sweep.o :	global.o data.o geom.o sn.o control.o octsweep.o solvar.o \
-		plib.o thrd_comm.o
-inner.o :	global.o geom.o sn.o data.o control.o solvar.o sweep.o \
-		time.o plib.o thrd_comm.o
-outer.o :	global.o geom.o sn.o data.o solvar.o control.o inner.o \
-		time.o plib.o expxs.o thrd_comm.o
-translv.o :	global.o plib.o geom.o sn.o data.o control.o utils.o \
-		solvar.o expxs.o outer.o time.o thrd_comm.o analyze.o
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) $(CXXCPP) -c $< -o $@
 
-#
-# Fortran rules
-#
-%.o:	%.F90
-	$(PP) -P $(PPFLAGS) $< >$*.f90
-	$(FORTRAN) $(FFLAGS) -c $*.f90
+%: %.cpp
+	$(CXX) $(CXXFLAGS) $(CXXCPP) -o $@ $<
 
-%.o:	%.f90
-	$(FORTRAN) $(FFLAGS) -c $<
+%.o: %.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
-#
-# Cleanup
-#
-clean:
-	rm -f *.o *.mod *.bc
+%: %.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ $<
 
 #
 # Count lines of code
@@ -156,13 +72,5 @@ clean:
 count:
 	rm -f Lines
 	for file in $(SRCS); do ./LineCount $$file Lines; done
-	awk -f ./LineReport < Lines >> Lines
+	gawk -f ./LineReport < Lines >> Lines
 	cat Lines
-
-#
-# Link compiled files only. No recompile.
-#
-link:
-	$(FORTRAN) $(FFLAGS) $(FFLAG2) -o $(TARGET) $(OBJS)
-
-
