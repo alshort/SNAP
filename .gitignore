@@ -1,3 +1,5 @@
 src/*.o
 src/*.mod
 src/gsnap
+slurm*
+src/snap_mkl_vml
