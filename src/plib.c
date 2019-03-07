@@ -83,10 +83,6 @@ void pinit ( int argc, char *argv[], para_data *para_vars, double *time, int *ie
     *ierr = MPI_Comm_size ( COMM_SNAP, &NPROC );
     *ierr = MPI_Comm_rank ( COMM_SNAP, &IPROC );
 
-    fprintf(stdout, "Error? %d", *ierr);
-    fprintf(stdout, "Size = %d", NPROC);
-    fprintf(stdout, "Rank = %d", IPROC);
-
 
  /*******************************************************************************
  * Put a barrier for every process to reach this point.
@@ -128,6 +124,9 @@ void pcomm_set( int npey, int npez,  para_data *para_vars, int *ierr )
     periods[1] = 0;
 
     *ierr = MPI_Cart_create( COMM_SNAP, 2, dims, periods, reorder, &COMM_SPACE );
+
+    fprintf(stdout, "Error creating cartesian topology? %d\n", *ierr);
+
 
 /*******************************************************************************
  * Set up the sub-communicators of the cartesian grid
