@@ -83,6 +83,11 @@ void pinit ( int argc, char *argv[], para_data *para_vars, double *time, int *ie
     *ierr = MPI_Comm_size ( COMM_SNAP, &NPROC );
     *ierr = MPI_Comm_rank ( COMM_SNAP, &IPROC );
 
+    fprintf(stdout, "Error? %d", *ierr);
+    fprintf(stdout, "Size = %d", NPROC);
+    fprintf(stdout, "Rank = %d", IPROC);
+
+
  /*******************************************************************************
  * Put a barrier for every process to reach this point.
  *******************************************************************************/

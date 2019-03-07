@@ -1,6 +1,9 @@
 SNAP: SN (Discrete Ordinates) Application Proxy
 ===============================================
 
+* module load intel
+* module load intel impi
+
 snap-c C port of SNAP 1.0 produced by Intel Corporation
 
 
