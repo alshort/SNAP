@@ -123,11 +123,35 @@ void pcomm_set( int npey, int npez,  para_data *para_vars, int *ierr )
     periods[0] = 0;
     periods[1] = 0;
 
-    *ierr = MPI_Cart_create( COMM_SNAP, 2, dims, periods, reorder, &COMM_SPACE );
+    int create_err = MPI_Cart_create( COMM_SNAP, 2, dims, periods, reorder, &COMM_SPACE );
 
+
+/*	int i = 0;
+	int world_size = 0, world_rank = 0;
+MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+	for (i = 0; i < world_size; i++){
+		MPI_Barrier(MPI_COMM_WORLD);
+		if (world_rank == i)
+{
+printf("create_err = %d\n", create_err);
+printf("npey %d, npez %d\n", npey, npez);
+int space_size = 0;
+    int snap_size = 0;
+	printf("Rank = %d\n", world_rank);
+	printf("Snap size\n");
+    *ierr = MPI_Comm_size ( COMM_SNAP, &snap_size );
+	printf("Error code %d\n", *ierr);
+	printf("space size\n");
+    *ierr = MPI_Comm_size ( COMM_SPACE, &space_size );
+	printf("Error code %d\n", *ierr);
+    printf("COMM_SNAP = %d\n", snap_size);
+    printf("COMM_SPACE = %d\n", space_size);	
+	fflush(stdout);
+}
+}
     fprintf(stdout, "Error creating cartesian topology? %d\n", *ierr);
-
-
+*/
 /*******************************************************************************
  * Set up the sub-communicators of the cartesian grid
  *******************************************************************************/

@@ -2,15 +2,15 @@ A_PREFIX=snap
 A_SUFFIX=_mkl_vml
 A_TARGET=$(A_PREFIX)$(A_SUFFIX)
 
-CC=mpiicc			# C compiler command
-CFLAGS=-mkl -O3 -xAVX -std=c99 -fopenmp -parallel -DUSEMKL -DUSEVML	# C compiler flags
+CC=scorep mpiicc			# C compiler command
+CFLAGS=-mkl -O3 -xAVX -std=c99 -fopenmp -parallel -DUSEMKL -DUSEVML -pg	-g # C compiler flags
 #CC=mpicc
 #CFLAGS=-O3 -std=c99 -fopenmp -lm #-wall	# C compiler flags
 LDFLAGS=			# Linker flags, e.g. -L<lib dir> if you have libraries in a nonstandard directory <lib dir>
 LIBS=				# Libraries to pass to the linker, e.g. -l<library>
 CPPFLAGS=			# (Objective) C/C++ preprocessor flags, e.g. -I<include dir> if you have headers in a nonstandard directory <include dir>
-CXX=icc				# C++ compiler command
-CXXFLAGS=-O3 -std=c++11 -openmp	# C++ compiler flags
+CXX=scorep icc				# C++ compiler command
+CXXFLAGS=-O3 -std=c++11 -openmp -pg -g	# C++ compiler flags
 CXXCPP=				# C++ preprocessor flags
 
 A_FILES := $(wildcard *.cpp) $(wildcard *.c)

@@ -3,3 +3,6 @@ src/*.mod
 src/gsnap
 slurm*
 src/snap_mkl_vml
+
+gmon*
+analysis*

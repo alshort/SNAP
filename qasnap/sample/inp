@@ -1,7 +1,7 @@
 ! Input from namelist
 &invar
-  npey=2
-  npez=2
+  npey=4
+  npez=4
   ichunk=2
   nthreads=2
   nnested=1
