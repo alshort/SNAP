@@ -1,7 +1,7 @@
  SNAP: SN (Discrete Ordinates) Application Proxy
  Version Number..  1.01
  Version Date..  11-10-2014
- Ran on 4-7-119 at time 19:56:45
+ Ran on 7-22-119 at time 19:1:36
 
 ********************************************************************************
 
@@ -113,7 +113,7 @@
   Parallelization Parameters
     npey     = 4
     npez     = 4
-    nthreads = 2
+    nthreads = 1
 
           Thread Support Level
           0 - MPI_THREAD_SINGLE
@@ -202,20 +202,20 @@
 
   Code Section                          Time (seconds)
  **************                        ****************
-    Parallel Setup                       2.0996E-02
-    Input                                1.4639E-03
-    Setup                                2.0318E-03
-    Solve                                4.8254E-01
-       Parameter Setup                   2.2728E-01
-       Outer Source                      5.9104E-04
-       Inner Iterations                  2.5055E-01
-          Inner Source                   2.5759E-03
-          Transport Sweeps               1.7006E-01
-          Inner Misc Ops                 7.7909E-02
-       Solution Misc Ops                 4.1165E-03
-    Output                               4.9520E-03
-  Total Execution time                   5.4237E-01
+    Parallel Setup                       3.2069E-01
+    Input                                1.2397E-01
+    Setup                                8.3954E-02
+    Solve                                2.0560E+00
+       Parameter Setup                   1.0994E-01
+       Outer Source                      4.7227E-06
+       Inner Iterations                  1.8260E+00
+          Inner Source                   2.4585E-05
+          Transport Sweeps               1.1986E+00
+          Inner Misc Ops                 6.2746E-01
+       Solution Misc Ops                 1.2001E-01
+    Output                               5.6701E-02
+  Total Execution time                   2.7813E+00
 
-  Grind Time (nanoseconds)         7.1602E+02
+  Grind Time (nanoseconds)         3.0508E+03
 
 ********************************************************************************

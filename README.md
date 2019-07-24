@@ -1,14 +1,27 @@
-SNAP: SN (Discrete Ordinates) Application Proxy
-===============================================
+# SNAP: SN (Discrete Ordinates) Application Proxy
 
+snap-c: C port of SNAP 1.0 produced by Intel Corporation
+
+
+## Installation
+
+* sudo apt-get install mpich
+* sudo apt-get install libomp-dev
+* gcc (8.3)
+
+* Downloaded and install score-p
+  * Followed instructions in README
+  * ../configure --with-mpi=mpich3
+
+
+## Running
+
+## Tinis
 * module load intel
 * module load intel impi
 
-snap-c C port of SNAP 1.0 produced by Intel Corporation
 
-
-Description
------------
+## Description
 
 SNAP serves as a proxy application to model the performance of a modern discrete ordinates neutral particle transport application. SNAP may be considered an update to [Sweep3D](http://www.ccs3.lanl.gov/PAL/software.shtml), intended for hybrid computing architectures. It is modeled off the Los Alamos National Laboratory code PARTISN. PARTISN solves the linear Boltzmann transport equation (TE), a governing equation for determining the number of neutral particles (e.g., neutrons and gamma rays) in a multi-dimensional phase space. SNAP itself is not a particle transport application; SNAP incorporates no actual physics in its available data, nor does it use numerical operators specifically designed for particle transport. Rather, SNAP mimics the computational workload, memory requirements, and communication patterns of PARTISN. The equation it solves has been composed to use the same number of operations, use the same data layout, and load elements of the arrays in approximately the same order. Although the equation SNAP solves looks similar to the TE, it has no real world relevance.
 
@@ -18,8 +31,7 @@ The iterative strategy is comprised of a set of two nested loops. These nested l
 
 SNAP should be tested with problem sizes that accurately reflect the types of calculations PARTISN frequently handles. The spatial domain shall be decomposed to 2,000--4,000 cells per node (MPI rank). Each node will own all the energy groups and angles for that group of cells; typical calculations feature 10--100 energy groups and as few as 100 to as many as 2,000 angles. Moreover, sufficient memory must be provided to store two full copies of the solution vector for time-dependent calculations. The preceding parameters assume current trends in available per core memory. Significant advances or detriments affecting this assumption shall require reconsideration of appropriate parameters per compute node.
 
-Compilation
------------
+## Compilation
 
 SNAP has been written to the Fortran 90/95 standard primarily. The retrieval of command line arguments, which contain file names, is handled with a standard Fortran 2003 intrinsic subroutine. It has been successfully built with, but not necessarily limited to, gfortran and ifort. Moreover, the code has been built with the profiling tool [Byfl](https://github.com/losalamos/byfl). The accompanying Makefile provides sample build options for gfortran and ifort. The build system depends on the availability of MPI. Both example builds assume the usage of mpif90 from an MPI installation. Builds may be selected by switching the COMPILER option in the Makefile or choosing one with the "make COMPILER=[]" command. The builds also assume the availability of OpenMP. Compiling SNAP without MPI or OpenMP will require modification to the source code to remove related subroutine calls and directives.
 
@@ -77,8 +89,7 @@ Lastly, a line count report is generated with:
 
 The line count report excludes blank lines and comments. It counts the number of code lines in all `*.f90` files and sums the results. The information is printed to the the `Lines` file.
 
-Usage
------
+## Usage
 
 When SNAP is built with MPI, to execute SNAP, use the following command:
 
@@ -92,8 +103,7 @@ The command line is read for the input/output file names. If one of the names is
 
 The specific command to invoke a run with MPI and the corresponding options may be dependent on the specific machine used to execute. Most notably, the "aprun" command is used on Cray systems.
 
-Sample Input
-------------
+## Sample Input
 
 The following is a sample input of a SNAP job. Several other examples are provided as part of the small set of regression testing. For more information about the valid range of values and descriptions of the input variables, please see the user manual.
 
@@ -132,10 +142,11 @@ The following is a sample input of a SNAP job. Several other examples are provid
       swp_typ=0
     /
 
-Sample Output
--------------
+## Sample Output
 
 The following is the corresponding output to the above case. A brief outline of the output file contents is version and run time information, echo of input (or default) values of the namelist variables, echo of relevant parameters after setup, iteration monitor, mid-plane flux output, and the timing summary. Warning and error messages may be printed throughout the output file to alert the user to some problem with the execution. Unlike errors, warnings do not cause program termination.
+
+```
 
      SNAP: SN (Discrete Ordinates) Application Proxy
      Version Number..  1.05
@@ -367,12 +378,11 @@ The following is the corresponding output to the above case. A brief outline of 
       Grind Time (nanoseconds)         1.1078E+01
     
     ********************************************************************************
-    
+```
 
 Additional outputs in the form of `slgg` and `flux` files are available when requested according to the `scatp` and `fluxp` input variables, respectively.
 
-License
--------
+## License
 
 Los Alamos National Security, LLC owns the copyright to "SNAP: SN (Discrete Ordinates) Application Proxy, Version 1.x (C13087)". The license is BSD with standard clauses regarding indicating modifications before future redistribution:
 
@@ -390,27 +400,20 @@ Additionally, redistribution and use in source and binary forms, with or without
 THIS SOFTWARE IS PROVIDED BY LOS ALAMOS NATIONAL SECURITY, LLC AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL LOS ALAMOS NATIONAL SECURITY, LLC OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-Classification
---------------
+## Classification
 
 SNAP is Unclassified and contains no Unclassified Controlled Nuclear Information. It has been assigned Los Alamos Computer Code number LA-CC-13-016.
 
-Authors
--------
+## Authors
 
-Joe Zerr, rzerr _ at _ lanl.gov
+* Joe Zerr, rzerr _ at _ lanl.gov
+* Randal Baker, rsb _ at _ lanl.gov
 
-Randal Baker, rsb _ at _ lanl.gov
+### Additional Contacts
 
-Additional Contacts
--------------------
+* Mike Lang, mlang _ at _ lanl.gov
+* Josip Loncaric, josip _ at _ lanl.gov
 
-Mike Lang, mlang _ at _ lanl.gov
+## Last Modification to this Readme    
 
-Josip Loncaric, josip _ at _ lanl.gov
-
-Last Modification to this Readme
---------------------------------
-    
 03/03/2016
-
