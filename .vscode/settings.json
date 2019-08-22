@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "dim_sweep.h": "c",
+        "snap.h": "c"
+    }
+}

@@ -4,6 +4,7 @@
  * This module contains the 2D and 3D mesh sweep logic.
  ***********************************************************************/
 #include "snap.h"
+#include "dim_sweep.h"
 
 // Local variable array macro
 #define PSI_1D(ANG)   psi[ANG]
