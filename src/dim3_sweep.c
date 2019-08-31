@@ -771,10 +771,7 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
                                     sum_hv_tmp += HV_2D(ang,indx1);
                                 }
                             }
-
-
                         }
-
                    #else
                         unit_vec[0] = 1;
                         unit_vec[1] = 1;
@@ -855,7 +852,7 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
 /***********************************************************************
  * Exit loop when all angles are fixed up
  ***********************************************************************/
-                        if ( sum_hv == sum_hv_tmp ) break;
+                        if (sum_hv == sum_hv_tmp) break;
 
                         sum_hv = sum_hv_tmp;
 
@@ -968,7 +965,6 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
                                     PC_1D(ang) = 0;
                                 }
                             }
-
                         }
 
 #elif defined MKLUPDATE
@@ -993,7 +989,6 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
                                 + HJ_1D(ang)  * HV_2D(ang,1)
                                 + HK_1D(ang)  * HV_2D(ang,2)
                                 + VDELT_CONST * HV_2D(ang,3);
-
                         }
 
                         cblas_dscal(NANG, 0.5, pc, 1);
@@ -1010,7 +1005,6 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
                                 PC_1D(ang) = 0;
                             }
                         }
-
 #else
                         for ( ang = 0; ang < NANG; ang++ )
                         {
@@ -1046,7 +1040,6 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
                             }
                         }
 #endif
-
                     } // end fixup_loop
 
 /***********************************************************************
@@ -1079,10 +1072,9 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
                                    VML_ACCURACY | VML_HANDLING | VML_ERROR );
                         }
                     }
-
                     else
                     {
-                        for ( ang = 0; ang < NANG; ang++ )
+                        for (ang = 0; ang < NANG; ang++)
                         {
                             PSI_1D(ang) = PC_1D(ang);
 
@@ -1092,22 +1084,21 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
                             PSIJ_3D(ang,(ic-1),(k-1))
                                 = FXHV_2D(ang,1) * HV_2D(ang,1);
 
-                            if ( NDIMEN == 3 )
+                            if (NDIMEN == 3)
                             {
                                 PSIK_3D(ang,(ic-1),(j-1))
                                     = FXHV_2D(ang,2) * HV_2D(ang,2);
                             }
 
-                            if ( VDELT_CONST != 0 )
+                            if (VDELT_CONST != 0)
                             {
                                 PTR_OUT_6D(ang,(i-1),(j-1),(k-1),(i1-1),(i2-1))
                                     = FXHV_2D(ang,3) * HV_2D(ang,3);
                             }
                         }
-
                     }
 #else
-                    for ( ang = 0; ang < NANG; ang++ )
+                    for (ang = 0; ang < NANG; ang++)
                     {
                         PSI_1D(ang) = PC_1D(ang);
 
@@ -1117,13 +1108,13 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
                         PSIJ_3D(ang,(ic-1),(k-1))
                             = FXHV_2D(ang,1) * HV_2D(ang,1);
 
-                        if ( NDIMEN == 3 )
+                        if (NDIMEN == 3)
                         {
                             PSIK_3D(ang,(ic-1),(j-1))
                                 = FXHV_2D(ang,2) * HV_2D(ang,2);
                         }
 
-                        if ( VDELT_CONST != 0 )
+                        if (VDELT_CONST != 0)
                         {
                             PTR_OUT_6D(ang,(i-1),(j-1),(k-1),(i1-1),(i2-1))
                                 = FXHV_2D(ang,3) * HV_2D(ang,3);
@@ -1158,18 +1149,17 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
                 {
                     FLUXM_5D((l-1),(i-1),(j-1),(k-1),(g-1)) += cblas_ddot(NANG, &EC_2D(0,l), 1, w_psi,1);
                 }
-
 #else
                 sum_wpsi = 0;
 
-                for ( ang = 0; ang < NANG; ang++ )
+                for (ang = 0; ang < NANG; ang++)
                 {
                     sum_wpsi += W_1D(ang)*PSI_1D(ang);
                 }
 
                 FLUX_4D((i-1),(j-1),(k-1),(g-1)) += sum_wpsi;
 
-                for ( l = 1; l <= (CMOM-1); l++ )
+                for (l = 1; l <= (CMOM-1); l++)
                 {
                     sum_ecwpsi = 0;
 
@@ -1186,7 +1176,7 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
  * Calculate min and max scalar fluxes (not used elsewhere
  * currently)
  ***********************************************************************/
-                if ( oct == NOCT )
+                if (oct == NOCT)
                 {
                     FMIN = MIN( FMIN, FLUX_3D((i-1),(j-1),(k-1)) );
                     FMAX = MAX( FMAX, FLUX_3D((i-1),(j-1),(k-1)) );
@@ -1195,15 +1185,15 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
 /***********************************************************************
  * Save edge fluxes (dummy if checks for unused non-vacuum BCs)
  ***********************************************************************/
-                if ( j == jhi )
+                if (j == jhi)
                 {
-                    if ( jd==2 && LASTY )
+                    if (jd==2 && LASTY)
                     {
                         // CONTINUE
                     }
-                    else if ( jd == 1 && FIRSTY )
+                    else if (jd == 1 && FIRSTY)
                     {
-                        if ( ibb == 1 )
+                        if (ibb == 1)
                         {
                             // CONTINUE
                         }
@@ -1214,7 +1204,7 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
                         cblas_dcopy(NANG, &PSIJ_3D(0,(ic-1),(k-1)), 1,
                             &JB_OUT_3D(0,(ic-1),(k-1)), 1);
 #else
-                        for ( ang = 0; ang < NANG; ang++ )
+                        for (ang = 0; ang < NANG; ang++)
                         {
                             JB_OUT_3D(ang,(ic-1),(k-1))
                                 = PSIJ_3D(ang,(ic-1),(k-1));
@@ -1222,14 +1212,13 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
 #endif
                     }
                 }
-
-                if ( k == khi )
+                if (k == khi)
                 {
-                    if ( kd == 2 && LASTZ )
+                    if (kd == 2 && LASTZ)
                     {
                         // CONTINUE
                     }
-                    else if ( kd==1 && FIRSTZ )
+                    else if (kd==1 && FIRSTZ)
                     {
                         if ( ibf == 1 )
                         {
@@ -1254,7 +1243,7 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
 /***********************************************************************
  * Compute leakages (not used elsewhere currently)
  ***********************************************************************/
-                if ( ((i+id-1) == 1) || ((i+id-1) == (NX+1)) )
+                if (((i+id-1) == 1) || ((i+id-1) == (NX+1)))
                 {
 #ifdef USEMKL
                     FLKX_3D((i+id-1-1),(j-1),(k-1))
@@ -1263,7 +1252,7 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
 #else
                     sum_wmupsii = 0;
 
-                    for ( ang = 0; ang < NANG; ang++ )
+                    for (ang = 0; ang < NANG; ang++)
                     {
                         sum_wmupsii
                             += WMU_1D(ang) * PSII_3D(ang,(j-1),(k-1));
@@ -1273,8 +1262,7 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
                         += ist*sum_wmupsii;
 #endif
                 }
-
-                if ( (jd==1 && FIRSTY) || (jd==2 && LASTY) )
+                if ((jd == 1 && FIRSTY) || (jd == 2 && LASTY))
                 {
 #ifdef USEMKL
                     FLKY_3D((i-1),(j+jd-1-1),(k-1))
@@ -1283,7 +1271,7 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
 #else
                     sum_wetapsij = 0;
 
-                    for ( ang = 0; ang < NANG; ang++ )
+                    for (ang = 0; ang < NANG; ang++)
                     {
                         sum_wetapsij
                             += WETA_1D(ang) * PSIJ_3D(ang,(ic-1),(k-1));

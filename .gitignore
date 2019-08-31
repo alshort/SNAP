@@ -6,3 +6,5 @@ src/snap_mkl_vml
 
 gmon*
 analysis*
+
+src/Lines

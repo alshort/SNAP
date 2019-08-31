@@ -45,9 +45,11 @@ cleanout: clean
 
 .PHONY:	clean vars help rebuild
 
-rebuild: clean $(A_TARGET)		# Clean and build target
+# Clean and build target
+rebuild: clean $(A_TARGET)
 
-$(A_TARGET): $(A_OBJS)			# Build target and its required object files
+# Build target and its required object files
+$(A_TARGET): $(A_OBJS)
 	@echo "Compiling and linking main program"
 	$(GPUCC) -arch=sm_60 -m64 -std=c++11 -ccbin=$(CC) -Xcompiler "-mkl" $(LDFLAGS) $(LIBS) $^ -o $@
 
@@ -66,14 +68,9 @@ $(A_TARGET): $(A_OBJS)			# Build target and its required object files
 %: %.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ $<
 
-#
 # Count lines of code
-#
 count:
 	rm -f Lines
 	for file in $(SRCS); do ./LineCount $$file Lines; done
 	gawk -f ./LineReport < Lines >> Lines
 	cat Lines
-
-setup: 
-	@sh ". ../intel.sh"

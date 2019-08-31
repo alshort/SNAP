@@ -1,0 +1,5 @@
+*WARNING: PINIT_OMP: NTHREADS>MAX_THREADS; reset to MAX_THREADS
+
+Success! Done in a SNAP!
+Executing main program
+Elapsed time: 0.478439092636 seconds
