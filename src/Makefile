@@ -3,7 +3,7 @@ A_TARGET=snap
 # -xAVX -pg g 
 # C compiler command
 CC=mpiicc
-CFLAGS=-mkl -O3 -std=c11 -fopenmp -parallel -DUSEMKL -DUSEVML -pg -g # C compiler flags
+CFLAGS=-mkl -O3 -std=c11 -xAVX -fopenmp -parallel -DUSEMKL -DUSEVML -pg -g # C compiler flags
 LDFLAGS=-L/usr/local/cuda/lib64 # Linker flags, e.g. -L<lib dir> if you have libraries in a nonstandard directory <lib dir>
 LIBS=-lcudart # Libraries to pass to the linker, e.g. -l<library>
 

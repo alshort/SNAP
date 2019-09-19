@@ -17,6 +17,9 @@ import time
 
 gmon_regex = "gmon\.out.*"
 
+cpu_path = "src/snap_cpu"
+gpu_path = "src/snap"
+
 
 def delete_files(dir, pattern):
     for f in os.listdir(dir):
@@ -70,7 +73,8 @@ parser.add_argument("--clean", action="store_true")
 
 parser.add_argument("--avg_times", action="store_true")
 
-parser.add_argument("--exe", help="Location of executable to run")
+parser.add_argument("--cpu", action="store_true", help="Use CPU-based build")
+parser.add_argument("--gpu", action="store_true", help="Use GPU-based build")
 parser.add_argument("--np", help="Number of processes to run")
 parser.add_argument("--fi", help="Path to input file to read")
 parser.add_argument("--fo", help="Path to output file to write")
@@ -98,10 +102,6 @@ if __name__ == "__main__":
 
 
     # Validation
-    if args.exe is None:
-        print("exe not set")
-        sys.exit(1)
-
     if args.np is None:
         print("np not set")
         sys.exit(1)
@@ -115,8 +115,14 @@ if __name__ == "__main__":
         sys.exit(1)
 
     # Execute and time
+    app = cpu_path
+    if args.cpu:
+        app = cpu_path
+    if args.gpu:
+        app = gpu_path
+
     start_time = time.time()
-    subprocess.call(["mpirun", "-np", args.np, args.exe, "--fi", args.fi, "--fo", args.fo])
+    subprocess.call(["mpirun", "-np", args.np, app, "--fi", args.fi, "--fo", args.fo])
     end_time   = time.time()
     print("Elapsed time: {} seconds".format(end_time - start_time))
 

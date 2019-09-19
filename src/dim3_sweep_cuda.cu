@@ -2,8 +2,17 @@
 #include <cuda_runtime.h>
 
 __global__
-void add(int n, float *x, float *y)
+void add(int n, int m, int *c)
 {
-  for (int i = 0; i < n; i++)
-      y[i] = x[i] + y[i];
+  *c = a + b;
+}
+
+void load()
+{
+
+}
+
+void unload()
+{
+  
 }

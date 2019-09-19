@@ -6,6 +6,9 @@
 #include "snap.h"
 #include "dim_sweep.h"
 
+#include <cuda.h>
+#include <cuda_runtime.h>
+
 // Local variable array macro
 #define PSI_1D(ANG)   psi[ANG]
 #define PC_1D(ANG)    pc[ANG]
@@ -101,6 +104,16 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
  ***********************************************************************/
     ist = -1;
     if ( id == 2 ) ist = 1;
+
+    int c;
+    int *dev_c;
+
+    cuda_malloc((void**)&dev_c, sizeof(int)));
+    add<<<1,1>>>(2, 7, *dev_c);
+    cuda_memcpy(&c, dev_c, sizeof(int), cudaMemcpyDeviceToHost));
+
+    cudaFree(dev_c);
+
 
 /***********************************************************************
  * Zero out the outgoing boundary arrays and fixup array
@@ -241,20 +254,15 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
                                 PSIJ_3D(ang,(ic-1),(k-1)) = 0;
                             }
                         }
-
-
                     }
-
                     else
                     {
 #ifdef USEMKL
                         cblas_dcopy(NANG, &JB_IN_3D(0,(ic-1),(k-1)), 1,
                                     &PSIJ_3D(0,(ic-1),(k-1)), 1);
-
 #elif defined USEBLAS
                         dcopy(NANG, &JB_IN_3D(0,(ic-1),(k-1)), 1,
                                     &PSIJ_3D(0,(ic-1),(k-1)), 1);
-
 #else
                         for ( ang = 0; ang < NANG; ang++ )
                         {
@@ -479,7 +487,7 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
  ***********************************************************************/
                 if ( FIXUP == 0 )
                 {
-//#ifdef USEMKL
+
                 #ifdef USEVML
                     if ( NANG > VECLEN_MIN )
                     {
@@ -541,43 +549,7 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
                             }
                         }
                     }
-
-/*                #else
-                    for ( ang = 0; ang < NANG; ang++ )
-                    {
-                        PSI_1D(ang)
-                            = PC_1D(ang)*DINV_4D(ang,(i-1),(j-1),(k-1));
-                    }
-
-                    cblas_dscal(NANG, -1, &PSII_3D(0, (j-1), (k-1)), 1);
-
-                    cblas_daxpy(NANG, 2, psi, 1, &PSII_3D(0, (j-1), (k-1)), 1);
-
-                    cblas_dscal(NANG, -1, &PSIJ_3D(0, (ic-1), (k-1)), 1);
-
-                    cblas_daxpy(NANG, 2, psi, 1, &PSIJ_3D(0, (ic-1), (k-1)), 1);
-
-                    if ( NDIMEN == 3 )
-                    {
-                        cblas_dscal(NANG, -1, &PSIK_3D(0, (ic-1), (j-1)), 1);
-
-                        cblas_daxpy(NANG, 2, psi, 1, &PSIK_3D(0, (ic-1), (j-1)), 1);
-                    }
-
-                    if ( VDELT_CONST != 0 )
-                    {
-                         cblas_dscal(NANG, -1,
-                                     &PTR_IN_6D(0,(i-1),(j-1),(k-1),(i1-1),(i2-1)), 1);
-
-                         cblas_daxpy(NANG, 2, psi, 1,
-                                     &PTR_IN_6D(0,(i-1),(j-1),(k-1),(i1-1),(i2-1)), 1);
-                     }
-                 #endif
-*/
 #elif defined MKLUPDATE
-                     //cblas_dsbmv(CblasColMajor, CblasLower, NANG, 0, 1,
-                     //       &DINV_4D(0,(i-1),(j-1),(k-1)), 1, pc, 1, 0, psi, 1);
-
                      vmdMul(NANG, pc, &DINV_4D(0,(i-1),(j-1),(k-1)), psi,
                             VML_ACCURACY | VML_HANDLING | VML_ERROR);
 
@@ -644,9 +616,9 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
 #ifdef USEMKL
 
                 #ifdef USEVML
-                    for ( indx1 = 0; indx1 < 4; indx1++ )
+                    for (indx1 = 0; indx1 < 4; indx1++)
                     {
-                        for ( ang = 0; ang < NANG; ang++ )
+                        for (ang = 0; ang < NANG; ang++)
                         {
                             HV_2D(ang, indx1) = 1;
                         }
@@ -654,13 +626,12 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
                     }
                     sum_hv = cblas_dasum(NANG*4, hv, 1);
 
-                    vmdMul( NANG, pc, &DINV_4D(0,(i-1),(j-1),(k-1)), pc,
-                            VML_ACCURACY | VML_HANDLING | VML_ERROR );
+                    vmdMul( NANG, pc, &DINV_4D(0,(i-1),(j-1),(k-1)), pc, VML_ACCURACY | VML_HANDLING | VML_ERROR );
 
                 #else
-                    for ( indx1 = 0; indx1 < 4; indx1++ )
+                    for (indx1 = 0; indx1 < 4; indx1++)
                     {
-                        for ( ang = 0; ang < NANG; ang++ )
+                        for ( ang = 0; ang < NANG; ang++)
                         {
                             HV_2D(ang, indx1) = 1;
                         }
@@ -668,24 +639,22 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
 
                     sum_hv = cblas_dasum(NANG*4, hv, 1);
 
-                    for ( ang = 0; ang < NANG; ang++ )
+                    for (ang = 0; ang < NANG; ang++ )
                     {
-                        PC_1D(ang) = PC_1D(ang)
-                            * DINV_4D(ang,(i-1),(j-1),(k-1));
+                        PC_1D(ang) = PC_1D(ang) * DINV_4D(ang,(i-1),(j-1),(k-1));
                     }
                  #endif
 
 #else
-                    for ( ang = 0; ang < NANG; ang++ )
+                    for (ang = 0; ang < NANG; ang++)
                     {
-                        for ( indx1 = 0; indx1 < 4; indx1++ )
+                        for (indx1 = 0; indx1 < 4; indx1++)
                         {
                             HV_2D(ang, indx1) = 1;
                             sum_hv += HV_2D(ang,indx1);
                         }
 
-                        PC_1D(ang) = PC_1D(ang)
-                            * DINV_4D(ang,(i-1),(j-1),(k-1));
+                        PC_1D(ang) = PC_1D(ang) * DINV_4D(ang,(i-1),(j-1),(k-1));
                     }
 #endif
 
@@ -744,16 +713,13 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
                         {
                             for ( ang = 0; ang < NANG; ang++ )
                             {
-                                FXHV_2D(ang,0) =  2*PC_1D(ang)
-                                    - PSII_3D(ang,(j-1),(k-1));
+                                FXHV_2D(ang,0) =  2*PC_1D(ang) - PSII_3D(ang,(j-1),(k-1));
 
-                                FXHV_2D(ang,1) =  2*PC_1D(ang)
-                                    - PSIJ_3D(ang,(ic-1),(k-1));
+                                FXHV_2D(ang,1) =  2*PC_1D(ang) - PSIJ_3D(ang,(ic-1),(k-1));
 
                                 if ( NDIMEN == 3 )
                                 {
-                                    FXHV_2D(ang,2) = 2*PC_1D(ang)
-                                        - PSIK_3D(ang,(ic-1),(j-1));
+                                    FXHV_2D(ang,2) = 2*PC_1D(ang) - PSIK_3D(ang,(ic-1),(j-1));
                                 }
 
                                 if ( VDELT_CONST != 0 )
@@ -820,22 +786,18 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
 #else
                         for ( ang = 0; ang < NANG; ang++ )
                         {
-                            FXHV_2D(ang,0) =  2*PC_1D(ang)
-                                - PSII_3D(ang,(j-1),(k-1));
+                            FXHV_2D(ang,0) =  2*PC_1D(ang) - PSII_3D(ang,(j-1),(k-1));
 
-                            FXHV_2D(ang,1) =  2*PC_1D(ang)
-                                - PSIJ_3D(ang,(ic-1),(k-1));
+                            FXHV_2D(ang,1) =  2*PC_1D(ang) - PSIJ_3D(ang,(ic-1),(k-1));
 
                             if ( NDIMEN == 3 )
                             {
-                                FXHV_2D(ang,2) = 2*PC_1D(ang)
-                                    - PSIK_3D(ang,(ic-1),(j-1));
+                                FXHV_2D(ang,2) = 2*PC_1D(ang) - PSIK_3D(ang,(ic-1),(j-1));
                             }
 
                             if ( VDELT_CONST != 0 )
                             {
-                                FXHV_2D(ang,3) = 2*PC_1D(ang)
-                                    - PTR_IN_6D(ang,(i-1),(j-1),(k-1),(i1-1),(i2-1));
+                                FXHV_2D(ang,3) = 2*PC_1D(ang) - PTR_IN_6D(ang,(i-1),(j-1),(k-1),(i1-1),(i2-1));
                             }
 
                             for ( indx1 = 0; indx1 < 4; indx1++ )
@@ -1078,22 +1040,18 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
                         {
                             PSI_1D(ang) = PC_1D(ang);
 
-                            PSII_3D(ang,(j-1),(k-1))
-                                = FXHV_2D(ang,0) * HV_2D(ang,0);
+                            PSII_3D(ang,(j-1),(k-1)) = FXHV_2D(ang,0) * HV_2D(ang,0);
 
-                            PSIJ_3D(ang,(ic-1),(k-1))
-                                = FXHV_2D(ang,1) * HV_2D(ang,1);
+                            PSIJ_3D(ang,(ic-1),(k-1)) = FXHV_2D(ang,1) * HV_2D(ang,1);
 
                             if (NDIMEN == 3)
                             {
-                                PSIK_3D(ang,(ic-1),(j-1))
-                                    = FXHV_2D(ang,2) * HV_2D(ang,2);
+                                PSIK_3D(ang,(ic-1),(j-1)) = FXHV_2D(ang,2) * HV_2D(ang,2);
                             }
 
                             if (VDELT_CONST != 0)
                             {
-                                PTR_OUT_6D(ang,(i-1),(j-1),(k-1),(i1-1),(i2-1))
-                                    = FXHV_2D(ang,3) * HV_2D(ang,3);
+                                PTR_OUT_6D(ang,(i-1),(j-1),(k-1),(i1-1),(i2-1)) = FXHV_2D(ang,3) * HV_2D(ang,3);
                             }
                         }
                     }
@@ -1102,22 +1060,18 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
                     {
                         PSI_1D(ang) = PC_1D(ang);
 
-                        PSII_3D(ang,(j-1),(k-1))
-                            = FXHV_2D(ang,0) * HV_2D(ang,0);
+                        PSII_3D(ang,(j-1),(k-1)) = FXHV_2D(ang,0) * HV_2D(ang,0);
 
-                        PSIJ_3D(ang,(ic-1),(k-1))
-                            = FXHV_2D(ang,1) * HV_2D(ang,1);
+                        PSIJ_3D(ang,(ic-1),(k-1)) = FXHV_2D(ang,1) * HV_2D(ang,1);
 
                         if (NDIMEN == 3)
                         {
-                            PSIK_3D(ang,(ic-1),(j-1))
-                                = FXHV_2D(ang,2) * HV_2D(ang,2);
+                            PSIK_3D(ang,(ic-1),(j-1)) = FXHV_2D(ang,2) * HV_2D(ang,2);
                         }
 
                         if (VDELT_CONST != 0)
                         {
-                            PTR_OUT_6D(ang,(i-1),(j-1),(k-1),(i1-1),(i2-1))
-                                = FXHV_2D(ang,3) * HV_2D(ang,3);
+                            PTR_OUT_6D(ang,(i-1),(j-1),(k-1),(i1-1),(i2-1)) = FXHV_2D(ang,3) * HV_2D(ang,3);
                         }
                     }
 #endif
@@ -1140,8 +1094,7 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
  * Compute the flux moments
  ***********************************************************************/
 #ifdef USEMKL
-                vmdMul(NANG, W, psi, w_psi,
-                       VML_ACCURACY | VML_HANDLING | VML_ERROR);
+                vmdMul(NANG, W, psi, w_psi, VML_ACCURACY | VML_HANDLING | VML_ERROR);
 
                 FLUX_4D((i-1),(j-1),(k-1),(g-1)) += cblas_ddot(NANG, W, 1, psi, 1);
 
@@ -1154,7 +1107,7 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
 
                 for (ang = 0; ang < NANG; ang++)
                 {
-                    sum_wpsi += W_1D(ang)*PSI_1D(ang);
+                    sum_wpsi += W_1D(ang) * PSI_1D(ang);
                 }
 
                 FLUX_4D((i-1),(j-1),(k-1),(g-1)) += sum_wpsi;
@@ -1201,13 +1154,11 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
                     else
                     {
 #ifdef USEMKL
-                        cblas_dcopy(NANG, &PSIJ_3D(0,(ic-1),(k-1)), 1,
-                            &JB_OUT_3D(0,(ic-1),(k-1)), 1);
+                        cblas_dcopy(NANG, &PSIJ_3D(0,(ic-1),(k-1)), 1, &JB_OUT_3D(0,(ic-1),(k-1)), 1);
 #else
                         for (ang = 0; ang < NANG; ang++)
                         {
-                            JB_OUT_3D(ang,(ic-1),(k-1))
-                                = PSIJ_3D(ang,(ic-1),(k-1));
+                            JB_OUT_3D(ang,(ic-1),(k-1)) = PSIJ_3D(ang,(ic-1),(k-1));
                         }
 #endif
                     }
@@ -1233,8 +1184,7 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
 #else
                         for ( ang = 0; ang < NANG; ang++ )
                         {
-                            KB_OUT_3D(ang,(ic-1),(j-1))
-                                = PSIK_3D(ang,(ic-1),(j-1));
+                            KB_OUT_3D(ang,(ic-1),(j-1)) = PSIK_3D(ang,(ic-1),(j-1));
                         }
 #endif
                     }
@@ -1254,12 +1204,10 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
 
                     for (ang = 0; ang < NANG; ang++)
                     {
-                        sum_wmupsii
-                            += WMU_1D(ang) * PSII_3D(ang,(j-1),(k-1));
+                        sum_wmupsii += WMU_1D(ang) * PSII_3D(ang,(j-1),(k-1));
                     }
 
-                    FLKX_3D((i+id-1-1),(j-1),(k-1))
-                        += ist*sum_wmupsii;
+                    FLKX_3D((i+id-1-1),(j-1),(k-1)) += ist*sum_wmupsii;
 #endif
                 }
                 if ((jd == 1 && FIRSTY) || (jd == 2 && LASTY))
@@ -1277,12 +1225,11 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
                             += WETA_1D(ang) * PSIJ_3D(ang,(ic-1),(k-1));
                     }
 
-                    FLKY_3D((i-1),(j+jd-1-1),(k-1))
-                        += jst*sum_wetapsij;
+                    FLKY_3D((i-1),(j+jd-1-1),(k-1)) += jst*sum_wetapsij;
 #endif
                 }
 
-                if ( ((kd == 1 && FIRSTZ) || (kd == 2 && LASTZ)) && NDIMEN == 3 )
+                if (((kd == 1 && FIRSTZ) || (kd == 2 && LASTZ)) && NDIMEN == 3)
                 {
 #ifdef USEMKL
                     FLKZ_3D((i-1),(j-1),(k+kd-1-1))
@@ -1291,10 +1238,9 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
 #else
                     sum_wxipsik = 0;
 
-                    for ( ang = 0; ang < NANG; ang++ )
+                    for (ang = 0; ang < NANG; ang++)
                     {
-                        sum_wxipsik
-                            += WXI_1D(ang) * PSIK_3D(ang,(ic-1),(j-1));
+                        sum_wxipsik += WXI_1D(ang) * PSIK_3D(ang,(ic-1),(j-1));
                     }
 
                     FLKZ_3D((i-1),(j-1),(k+kd-1-1))
