@@ -14,12 +14,17 @@ import subprocess
 import sys
 import time
 
+VERBOSE = False
 
 gmon_regex = "gmon\.out.*"
 
 cpu_path = "src/snap_cpu"
 gpu_path = "src/snap"
 
+
+def printv(*str):
+    if VERBOSE:
+        print(*str)
 
 def delete_files(dir, pattern):
     for f in os.listdir(dir):
@@ -45,7 +50,7 @@ def avg_times():
     paths_to_process = sorted(paths_to_process)
     size = 3
     partitioned_sets = [paths_to_process[i:i + size] for i  in range(0, len(paths_to_process), size)]
-    # print(partitioned_sets)
+    printv(partitioned_sets)
 
     # Read and average the times
     # Output the result
@@ -62,63 +67,59 @@ def avg_times():
             writer.writerow([i, t / 3])
             i += 1
 
-    
-
 
 # Setup argument parsing
-parser = argparse.ArgumentParser(description="Executes snap with given parameters.")
+parent_parser = argparse.ArgumentParser(description="Executes snap with given parameters.")
+parent_parser.add_argument("-v", "--verbose", action="store_true", help="Use verbose output")
+subparsers = parent_parser.add_subparsers(title="commands", dest="command")
 
-parser.add_argument("--setup", action="store_true")
-parser.add_argument("--clean", action="store_true")
+parser_setup = subparsers.add_parser("setup", add_help=False,
+    description="setup", help="sets up the executing environment")
 
-parser.add_argument("--avg_times", action="store_true")
+parser_clean = subparsers.add_parser("clean", add_help=False,
+    description="clean", help="cleans the working directory")
 
-parser.add_argument("--cpu", action="store_true", help="Use CPU-based build")
-parser.add_argument("--gpu", action="store_true", help="Use GPU-based build")
-parser.add_argument("--np", help="Number of processes to run")
-parser.add_argument("--fi", help="Path to input file to read")
-parser.add_argument("--fo", help="Path to output file to write")
+parser_run = subparsers.add_parser("run",
+    description="run", help="runs one of the SNAP program")
+parser_run.add_argument("--cpu", action="store_true", help="Use CPU-based build")
+parser_run.add_argument("--gpu", action="store_true", help="Use GPU-based build")
+parser_run.add_argument("-n", "--np", help="Number of processes to run")
+parser_run.add_argument("-i", "--fi", help="Path to input file to read")
+parser_run.add_argument("-o", "--fo", help="Path to output file to write")
 
-args = parser.parse_args()
+parser_analyse = subparsers.add_parser("analyse",
+    description="analyse", help="performs analysis on the pre-generated output of SNAP executions")
 
-
-if __name__ == "__main__":
-    print("Executing main program")
-
-
-    if args.avg_times:
-        avg_times()
-        sys.exit(0)
-
-    if args.setup:
-        print("Initiate setup")
-        subprocess.call([".", "~/intel/bin/compilervars.sh", "-arch", "intel64", "-platform", "linux"], shell=True)
-        subprocess.call([".", "~/intel/mkl/bin/mklvars.sh", "intel64"], shell=True)
-        subprocess.call([".", "~/intel/bin/iccvars.sh", "-arch", "intel64", "-platform", "linux"], shell=True)
-        subprocess.call([".", "~/intel/compilers_and_libraries/linux/mpi/intel64/bin/mpivars.sh"], shell=True)
-
-    if args.clean:
-        delete_files(os.getcwd(), gmon_regex)
+args = parent_parser.parse_args()
 
 
+def run():
     # Validation
     if args.np is None:
-        print("np not set")
+        print("ERROR: --np is not set.")
+        parser_run.print_help()
         sys.exit(1)
 
     if args.fi is None:
-        print("fi not set")
+        print("ERROR: --fi is not set.")
+        parser_run.print_help()
         sys.exit(1)
 
     if args.fo is None:
-        print("fo not set")
+        print("ERROR: --fo is not set.")
+        parser_run.print_help()
         sys.exit(1)
 
     # Execute and time
     app = cpu_path
+    if (args.cpu is None and args.gpu is None) or (args.cpu is not None and args.gpu is not None):
+        print("ERROR: Must set one of either --cpu and --gpu, not both nor neither")
+        parser_run.print_help()
+        sys.exit(1)
+
     if args.cpu:
         app = cpu_path
-    if args.gpu:
+    elif args.gpu:
         app = gpu_path
 
     start_time = time.time()
@@ -126,4 +127,38 @@ if __name__ == "__main__":
     end_time   = time.time()
     print("Elapsed time: {} seconds".format(end_time - start_time))
 
-    sys.exit(0)
+def analyse():
+    avg_times()
+
+
+if __name__ == "__main__":
+    if args.verbose: VERBOSE = True
+
+    printv("Command:", args.command)
+
+    if args.command == None:
+        parent_parser.print_help()
+        sys.exit(1)
+
+    if args.command == "setup":
+        printv("executing setup")
+        subprocess.call([".", "~/intel/bin/compilervars.sh", "-arch", "intel64", "-platform", "linux"], shell=True)
+        subprocess.call([".", "~/intel/mkl/bin/mklvars.sh", "intel64"], shell=True)
+        subprocess.call([".", "~/intel/bin/iccvars.sh", "-arch", "intel64", "-platform", "linux"], shell=True)
+        subprocess.call([".", "~/intel/compilers_and_libraries/linux/mpi/intel64/bin/mpivars.sh"], shell=True)
+        sys.exit(0)
+
+    elif args.command == "clean":
+        printv("executing clean")
+        delete_files(os.getcwd(), gmon_regex)
+        sys.exit(0)
+
+    elif args.command == "run":
+        printv("executing run")
+        run()
+        sys.exit(0)
+
+    elif args.command == "analyse":
+        printv("executing analyse")
+        analyse()
+        sys.exit(0)
