@@ -110,18 +110,14 @@ def run(args, parser):
     out_name = "out{}_{}_n{}".format(out_num, "cpu" if args.cpu else "gpu", args.np)
     matching = count_matching_regex_in_folder(OUT_DIR, out_name + "_\d")
     run_id = 1 if matching == 0 else matching + 1
+    out_name = "{}_{}".format(out_name, run_id)
 
-    out_time_name = out_name
-    if matching == 0:
-        out_name = out_name + "_1")
-        out_time_name = out_time_name + "_time_1"
-    else:
-        printv(out_name + "_{}".format(matching + 1))    
+    printv("Output file: {}".format(out_name))
 
     start_time = time.time()
     subprocess.call(["mpirun", "-np", args.np, app, "--fi", args.fi, "--fo", os.path.join(OUT_DIR, out_name)])
-    end_time   = time.time()
-    print("Elapsed time: {} seconds".format(end_time - start_time))
+    end_time = time.time()
+    printv("Elapsed time: {} seconds".format(end_time - start_time))
 
     # Times
     if not os.path.isfile("times.csv"):
