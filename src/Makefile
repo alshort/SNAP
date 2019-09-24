@@ -14,7 +14,7 @@ CXXCPP= # C++ preprocessor flags
 
 # GPU
 GPUCC=nvcc
-GPUFLAGS=-dc -arch=sm_60 -dlink -m64 -rdc=true
+GPUFLAGS=-arch=compute_61 -code=sm_61 -m 64 # -rdc=true #-dc -dlink
 
 
 A_FILES := $(wildcard *.cpp) $(wildcard *.c) $(wildcard *.cu)
@@ -50,8 +50,11 @@ rebuild: clean $(A_TARGET)
 
 # Build target and its required object files
 $(A_TARGET): $(A_OBJS)
-	@echo "Compiling and linking main program"
-	$(GPUCC) -arch=sm_60 -m64 -std=c++11 -ccbin=$(CC) -Xcompiler "-mkl" $(LDFLAGS) $(LIBS) $^ -o $@
+	# @echo "Compiling and linking main program"
+	$(GPUCC) -arch=compute_61 -code=sm_61 -m 64 -std=c++11 -ccbin=$(CC) -Xcompiler "-mkl" $(LDFLAGS) $(LIBS) $^ -o $@ -lcuda -lcudart
+
+# dim3_sweep_cuda.o: dim3_sweep.o dim3_sweep_cuda.cu
+# 	gcc -o dim3_sweep_cuda.o dim3_sweep.o dim3_sweep_cuda.cu -lcuda -lcudart
 
 %.o: %.cu
 	$(GPUCC) $(GPUFLAGS) -c $< -o $@

@@ -4,10 +4,6 @@
  * This module contains the 2D and 3D mesh sweep logic.
  ***********************************************************************/
 #include "snap.h"
-#include "dim_sweep.h"
-
-#include <cuda.h>
-#include <cuda_runtime.h>
 
 // Local variable array macro
 #define PSI_1D(ANG)   psi[ANG]
@@ -104,15 +100,6 @@ void dim3_sweep ( input_data *input_vars, para_data *para_vars,
  ***********************************************************************/
     ist = -1;
     if ( id == 2 ) ist = 1;
-
-    int c;
-    int *dev_c;
-
-    cuda_malloc((void**)&dev_c, sizeof(int)));
-    add<<<1,1>>>(2, 7, *dev_c);
-    cuda_memcpy(&c, dev_c, sizeof(int), cudaMemcpyDeviceToHost));
-
-    cudaFree(dev_c);
 
 
 /***********************************************************************

@@ -141,8 +141,13 @@ def run(args, parser):
     if not os.path.isdir(OUT_DIR):
         os.mkdir(OUT_DIR)
 
+    # print(args.np, type(args.np))
+    # print(app, type(app))
+    # print(args.fi, type(args.fi))
+    # print(out_path, type(out_path))
+
     start_time = time.time()
-    returncode = subprocess.call(["mpirun", "-np", args.np, app, "--fi", args.fi, "--fo", out_path])
+    returncode = subprocess.call(["mpirun", "-np", str(args.np), app, "--fi", args.fi, "--fo", out_path])
     end_time = time.time()
     if not returncode == 0:
         print("ERROR: subprocess.call returned {}. See standard output for further information.".format(returncode))

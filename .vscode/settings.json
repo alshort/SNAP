@@ -2,5 +2,13 @@
     "files.associations": {
         "dim_sweep.h": "c",
         "snap.h": "c"
-    }
+    },
+    "spellright.language": [
+        "English (British)"
+    ],
+    "spellright.documentTypes": [
+        "markdown",
+        "latex",
+        "plaintext"
+    ]
 }
