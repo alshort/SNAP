@@ -1,20 +1,25 @@
 A_TARGET=snap
 
-# -xAVX -pg g 
 # C compiler command
 CC=mpiicc
-CFLAGS=-mkl -O3 -std=c11 -xAVX -fopenmp -parallel -DUSEMKL -DUSEVML -pg -g # C compiler flags
-LDFLAGS=-L/usr/local/cuda/lib64 # Linker flags, e.g. -L<lib dir> if you have libraries in a nonstandard directory <lib dir>
-LIBS=-lcudart # Libraries to pass to the linker, e.g. -l<library>
+# C compiler flags
+CFLAGS=-mkl -O3 -std=c11 -xAVX -fopenmp -parallel -DUSEMKL -DUSEVML -pg -g
+# Linker flags, e.g. -L<lib dir> if you have libraries in a nonstandard directory <lib dir>
+LDFLAGS=-L/usr/local/cuda/lib64
+# Libraries to pass to the linker, e.g. -l<library>
+LIBS=-lcudart -lcuda
 
 # C++
-CXX=icpc # C++ compiler command
-CXXFLAGS=-O3 -std=c++11 -qopenmp -pg -g	# C++ compiler flags
-CXXCPP= # C++ preprocessor flags
+# C++ compiler command
+CXX=icpc
+# C++ compiler flags
+CXXFLAGS=-O3 -std=c++11 -qopenmp -pg -g
+# C++ preprocessor flags
+CXXCPP=
 
 # GPU
 GPUCC=nvcc
-GPUFLAGS=-arch=compute_61 -code=sm_61 -m 64 # -rdc=true #-dc -dlink
+GPUFLAGS=-arch=compute_61 -code=sm_61 -m 64 -rdc=true -dc -dlink
 
 
 A_FILES := $(wildcard *.cpp) $(wildcard *.c) $(wildcard *.cu)
@@ -26,10 +31,11 @@ SRCS = snap.h snap_main.c utils.c version.c plib.c geom.c \
        translv.c solvar.c outer.c expxs.c inner.c \
        octsweep.c dim1_sweep.c dim3_sweep.c output.c time.c mms.c
 
+# Build all targets
+all: $(A_TARGET)
 
-all: $(A_TARGET) 			# Build all targets
-
-vars:					# Show Makefile variable values
+# Show Makefile variable values
+vars:
 	@echo "       CC "$(CC)
 	@echo " A_TARGET "$(A_TARGET)
 	@echo "   CFLAGS "$(CFLAGS)
@@ -37,7 +43,8 @@ vars:					# Show Makefile variable values
 	@echo "     LIBS "$(LIBS)@egrep "[a-z]\w+:" Makefile | sort
 	@echo "   A_OBJS "$(A_OBJS)
 
-clean:					# Remove make build object and target files
+# Remove make build object and target files
+clean:
 	-rm -f *.o $(A_TARGET)
 
 cleanout: clean
@@ -50,11 +57,7 @@ rebuild: clean $(A_TARGET)
 
 # Build target and its required object files
 $(A_TARGET): $(A_OBJS)
-	# @echo "Compiling and linking main program"
-	$(GPUCC) -arch=compute_61 -code=sm_61 -m 64 -std=c++11 -ccbin=$(CC) -Xcompiler "-mkl" $(LDFLAGS) $(LIBS) $^ -o $@ -lcuda -lcudart
-
-# dim3_sweep_cuda.o: dim3_sweep.o dim3_sweep_cuda.cu
-# 	gcc -o dim3_sweep_cuda.o dim3_sweep.o dim3_sweep_cuda.cu -lcuda -lcudart
+	$(GPUCC) -arch=compute_61 -code=sm_61 -m 64 -std=c++11 -ccbin=$(CC) -Xcompiler "-mkl" $(LDFLAGS) $(LIBS) $^ -o $@
 
 %.o: %.cu
 	$(GPUCC) $(GPUFLAGS) -c $< -o $@

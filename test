@@ -27,7 +27,7 @@ cpu_path = "src/snap_cpu"
 gpu_path = "src/snap"
 
 test_data_path = "testing.csv"
-schema = ["input_file", "run", "np", "cpu", "gpu", "block_num", "tpb", "time", "out_file"]
+schema = ["input_file", "run", "np", "cpu", "gpu", "time", "out_file"]
 
 
 def printv(*str):
@@ -72,8 +72,6 @@ def parse_arguments():
     parser_average.add_argument("-n", "--np", type=int, help="Number of processes")
     parser_average.add_argument("--cpu", action="store_true", help="Avg cpu builds")
     parser_average.add_argument("--gpu", action="store_true", help="Avg gpu builds")
-    parser_average.add_argument("-b", "--blocks", type=int, help="Number of blocks")
-    parser_average.add_argument("-t", "--threads", type=int, help="Number of threads")
 
     parser_compare = subparsers.add_parser("compare",
         description="compare", help="compares two given files for likeness")
@@ -170,7 +168,7 @@ def run(args, parser):
 
         c = 0 if args.gpu else 1
         g = 0 if args.cpu else 1
-        data = [in_path, run_id, args.np, c, g, 0, 0, end_time - start_time, out_path]
+        data = [in_path, run_id, args.np, c, g, end_time - start_time, out_path]
         writer.writerow(dict(zip(schema, data)))
 
     # Post-processing
@@ -191,16 +189,21 @@ def compare(out_file_1, out_file_2):
             diffs += 1
     
     difference = (diffs / len(f1s)) * 100
-    print("Percentage difference: {}".format(difference))
-    if difference < 0.005:
+    print("Percentage difference: {0:.2f}%".format(difference))
+    if difference < 0.1:
         print("Outputs are identical")
+    elif difference <= 10:
+        print("Outputs are nearly identical")
     else:
         print("Outputs differ")
+
+    if VERBOSE:
+        subprocess.call(["diff", "-s", "-y", os.path.join(OUT_DIR, out_file_1), os.path.join(OUT_DIR, out_file_2)])
 
 def average(args):
     average_time_for(args.i, args.np, args.cpu, args.gpu, args.blocks, args.threads)
 
-def average_time_for(input_file, proc, cpu, gpu, blocks, threads):
+def average_time_for(input_file, proc, cpu, gpu):
     if ((cpu is False) and (gpu is False)) or ((cpu is True) and (gpu is True)):
         print("ERROR: Cannot avg. Must set one of either cpu and gpu, not both nor neither")
         sys.exit(1)
@@ -211,7 +214,7 @@ def average_time_for(input_file, proc, cpu, gpu, blocks, threads):
         headers = next(reader)
         data = list(reader)
     
-    data = list(filter(lambda x: filter_row(x, input_file, proc, cpu, gpu, blocks, threads), data))
+    data = list(filter(lambda x: filter_row(x, input_file, proc, cpu, gpu), data))
     if len(data) == 0:
         print("ERROR: No files found matching that configuration.")
         sys.exit(1)
@@ -222,16 +225,14 @@ def average_time_for(input_file, proc, cpu, gpu, blocks, threads):
     printv("Averaging...")
     print(reduce(lambda x, y: x + y, [float(d["time"]) for d in data]) / len(data))
     
-def filter_row(row, input_file, proc, cpu, gpu, blocks, threads):
+def filter_row(row, input_file, proc, cpu, gpu):
     c = int(row["cpu"])
     g = int(row["gpu"])
     
     return (row["input_file"] == input_file and 
         int(row["np"]) == proc and 
         bool(c) == cpu and 
-        bool(g) == gpu and
-        int(row["block_num"]) == blocks and
-        int(row["tpb"]) == threads)
+        bool(g) == gpu)
 
 def avg_times():
     test_data = []
