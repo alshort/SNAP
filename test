@@ -86,6 +86,9 @@ def setup(args):
     subprocess.call([".", "~/intel/bin/iccvars.sh", "-arch", "intel64", "-platform", "linux"], shell=True)
     subprocess.call([".", "~/intel/compilers_and_libraries/linux/mpi/intel64/bin/mpivars.sh"], shell=True)
 
+    os.environ["MKL_NUM_THREADS"] = "8"
+    os.environ["OMP_NUM_THREADS"] = "8"
+
 def clean(args):
     delete_files(os.getcwd(), gmon_regex)
 
@@ -129,7 +132,7 @@ def run(args, parser):
     out_num = re.match(input_regex, in_path).group(1)
 
     out_name = "out{}_{}_n{}".format(out_num, "cpu" if args.cpu else "gpu", args.np)
-    matching = count_matching_regex_in_folder(OUT_DIR, out_name + "_\d$")
+    matching = count_matching_regex_in_folder(OUT_DIR, out_name + "_(\d)+$")
     run_id = 1 if matching == 0 else matching + 1
     out_name = "{}_{}".format(out_name, run_id)
 
@@ -139,13 +142,15 @@ def run(args, parser):
     if not os.path.isdir(OUT_DIR):
         os.mkdir(OUT_DIR)
 
-    # print(args.np, type(args.np))
-    # print(app, type(app))
-    # print(args.fi, type(args.fi))
-    # print(out_path, type(out_path))
-
+    # Execute the parallel program
     start_time = time.time()
-    returncode = subprocess.call(["mpirun", "-np", str(args.np), app, "--fi", args.fi, "--fo", out_path])
+    p_args = ["mpirun", "-np", str(args.np), app, "--fi", args.fi, "--fo", out_path]
+    env = os.environ.copy()
+    # env["OMP_NUM_THREADS"] = "8"
+    # env["MKL_NUM_THREADS"] = "8"
+    p = subprocess.Popen(p_args, env=env)
+    p.wait()
+    returncode = p.returncode
     end_time = time.time()
     if not returncode == 0:
         print("ERROR: subprocess.call returned {}. See standard output for further information.".format(returncode))

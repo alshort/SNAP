@@ -3,7 +3,7 @@ A_TARGET=snap
 # C compiler command
 CC=mpiicc
 # C compiler flags
-CFLAGS=-mkl -O3 -std=c11 -xAVX -fopenmp -parallel -DUSEMKL -DUSEVML -pg -g
+CFLAGS=-O3 -std=c11 -xAVX -qopenmp -parallel -pg -g
 # Linker flags, e.g. -L<lib dir> if you have libraries in a nonstandard directory <lib dir>
 LDFLAGS=-L/usr/local/cuda/lib64
 # Libraries to pass to the linker, e.g. -l<library>
@@ -29,7 +29,9 @@ A_OBJS := $(sort $(patsubst %.c, %.o, $(patsubst %.cu, %.o, $(patsubst %.cpp, %.
 SRCS = snap.h snap_main.c utils.c version.c plib.c geom.c \
        sn.c data.c control.c input.c setup.c dealloc.c \
        translv.c solvar.c outer.c expxs.c inner.c \
-       octsweep.c dim1_sweep.c dim3_sweep.c output.c time.c mms.c
+       octsweep.c dim1_sweep.c output.c time.c mms.c
+
+C_FILES := $(filter-out dim3_sweep.c, $(wildcard *.c))
 
 # Build all targets
 all: $(A_TARGET)
@@ -42,6 +44,7 @@ vars:
 	@echo "  LDFLAGS "$(LDFLAGS)
 	@echo "     LIBS "$(LIBS)@egrep "[a-z]\w+:" Makefile | sort
 	@echo "   A_OBJS "$(A_OBJS)
+	@echo " C_FILES"$(C_FILES)
 
 # Remove make build object and target files
 clean:
@@ -57,7 +60,7 @@ rebuild: clean $(A_TARGET)
 
 # Build target and its required object files
 $(A_TARGET): $(A_OBJS)
-	$(GPUCC) -arch=compute_61 -code=sm_61 -m 64 -std=c++11 -ccbin=$(CC) -Xcompiler "-mkl" $(LDFLAGS) $(LIBS) $^ -o $@
+	$(GPUCC) -arch=compute_61 -code=sm_61 -m 64 -std=c++11 -ccbin=$(CC) -Xcompiler "-liomp5" $(LDFLAGS) $(LIBS) $^ -o $@
 
 %.o: %.cu
 	$(GPUCC) $(GPUFLAGS) -c $< -o $@

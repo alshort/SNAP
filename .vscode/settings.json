@@ -1,7 +1,12 @@
 {
     "files.associations": {
+        ".aliases": "shellscript",
+        ".functions": "shellscript",
         "dim_sweep.h": "c",
-        "snap.h": "c"
+        "snap.h": "c",
+        "snap_data.h": "c",
+        "ctype.h": "c",
+        "string.h": "c"
     },
     "spellright.language": [
         "English (British)"

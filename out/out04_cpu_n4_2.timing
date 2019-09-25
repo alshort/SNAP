@@ -4,20 +4,20 @@
 
   Code Section                          Time (seconds)
  **************                        ****************
-    Parallel Setup                       1.5546E-03
-    Input                                9.4914E-05
-    Setup                                2.1643E-04
-    Solve                                1.8253E-01
-       Parameter Setup                   5.3236E-04
-       Outer Source                      1.2334E-04
-       Inner Iterations                  1.8181E-01
-          Inner Source                   1.8036E-04
-          Transport Sweeps               1.6110E-01
-          Inner Misc Ops                 2.0526E-02
-       Solution Misc Ops                 6.4453E-05
-    Output                               2.1445E-04
-  Total Execution time                   1.8475E-01
+    Parallel Setup                       1.7737E-03
+    Input                                8.8164E-05
+    Setup                                1.0143E-04
+    Solve                                4.0001E-01
+       Parameter Setup                   1.6202E-02
+       Outer Source                      4.5447E-04
+       Inner Iterations                  3.7769E-01
+          Inner Source                   1.5884E-02
+          Transport Sweeps               2.2780E-01
+          Inner Misc Ops                 1.3401E-01
+       Solution Misc Ops                 5.6655E-03
+    Output                               3.7216E-03
+  Total Execution time                   4.0584E-01
 
-  Grind Time (nanoseconds)         8.4100E+00
+  Grind Time (nanoseconds)         1.8314E+01
 
 ********************************************************************************

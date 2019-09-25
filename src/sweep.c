@@ -188,7 +188,6 @@ void sweep ( input_data *input_vars, para_data *para_vars, geom_data *geom_vars,
 
                         grp_act[g-1] = 0;
                         dogrp[i-1] = g;
-
                     }
                 }
 
@@ -227,7 +226,6 @@ void sweep ( input_data *input_vars, para_data *para_vars, geom_data *geom_vars,
                                 }
                             }
                         }
-
                         else
                         {
 

@@ -295,7 +295,7 @@
 
   Time Cycle 1
   Outer
-    1   Dfmxo= 4.0885E-03    No. Inners=   131
+    1   Dfmxo= 4.1123E-03    No. Inners=   131
 
   Cycle= 1    Time= 5.0000E-04    No. Outers= 1    No. Inners= 131
  
@@ -311,7 +311,7 @@
 
   Time Cycle 3
   Outer
-    1   Dfmxo= 5.2111E-03    No. Inners=   147
+    1   Dfmxo= 5.1307E-03    No. Inners=   147
 
   Cycle= 3    Time= 2.5000E-03    No. Outers= 1    No. Inners= 147
  
@@ -335,9 +335,9 @@
 
   Time Cycle 6
   Outer
-    1   Dfmxo= 4.9998E-03    No. Inners=   137
+    1   Dfmxo= 4.9998E-03    No. Inners=   136
 
-  Cycle= 6    Time= 5.5000E-03    No. Outers= 1    No. Inners= 137
+  Cycle= 6    Time= 5.5000E-03    No. Outers= 1    No. Inners= 136
  
 ******************************
 
@@ -351,9 +351,9 @@
 
   Time Cycle 8
   Outer
-    1   Dfmxo= 4.9016E-03    No. Inners=   122
+    1   Dfmxo= 4.9016E-03    No. Inners=   142
 
-  Cycle= 8    Time= 7.5000E-03    No. Outers= 1    No. Inners= 122
+  Cycle= 8    Time= 7.5000E-03    No. Outers= 1    No. Inners= 142
  
 ******************************
 
@@ -372,7 +372,7 @@
   Cycle= 10    Time= 9.5000E-03    No. Outers= 1    No. Inners= 150
 
 ******************************
-  Total inners for all time steps, outers = 1317
+  Total inners for all time steps, outers = 1336
 
 ********************************************************************************
 

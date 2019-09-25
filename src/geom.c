@@ -55,7 +55,8 @@ void geom_dealloc ( geom_data *geom_vars )
     FREE(DINV);
 
 /***********************************************************************
- * Deallocate the diagonal related arrays
+ * Deallocate the
+#include "snap_data.h" diagonal related arrays
  ***********************************************************************/
     for ( i = 1; i <= NDIAG; i++ )
     {

@@ -15,7 +15,6 @@
 !
  ***********************************************************************/
 #include "snap.h"
-#include "dim3_sweep_cuda.h"
 
 int main ( int argc, char *argv[] )
 {
@@ -75,11 +74,11 @@ int main ( int argc, char *argv[] )
     /* Calc parallel setup time */
     time_vars.tparset = time_vars.tparset + t2 - t1;
 
-    int world_rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-    if (world_rank == 1) {
-        test();
-    }
+    // int world_rank;
+    // MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+    // if (world_rank == 1) {
+    //     test();
+    // }
 
 
 /***********************************************************************

@@ -319,7 +319,7 @@
 
   Time Cycle 4
   Outer
-    1   Dfmxo= 5.1501E-03    No. Inners=   120
+    1   Dfmxo= 5.1531E-03    No. Inners=   120
 
   Cycle= 4    Time= 3.5000E-03    No. Outers= 1    No. Inners= 120
  
@@ -335,7 +335,7 @@
 
   Time Cycle 6
   Outer
-    1   Dfmxo= 4.9998E-03    No. Inners=   137
+    1   Dfmxo= 4.9914E-03    No. Inners=   137
 
   Cycle= 6    Time= 5.5000E-03    No. Outers= 1    No. Inners= 137
  
@@ -359,7 +359,7 @@
 
   Time Cycle 9
   Outer
-    1   Dfmxo= 4.8950E-03    No. Inners=   120
+    1   Dfmxo= 4.8948E-03    No. Inners=   120
 
   Cycle= 9    Time= 8.5000E-03    No. Outers= 1    No. Inners= 120
  

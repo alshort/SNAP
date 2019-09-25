@@ -6,6 +6,7 @@
  * dimensionality of the problem.
  ***********************************************************************/
 #include "snap.h"
+#include "dim3_sweep_cuda.h"
 
 /***********************************************************************
  * Call for the appropriate sweeper depending on the dimensionality. Let
@@ -69,7 +70,13 @@ void octsweep ( input_data *input_vars, para_data *para_vars, geom_data *geom_va
     }
     else
     {
-        dim3_sweep ( input_vars, para_vars, geom_vars, sn_vars, data_vars,
+        // dim3_sweep ( input_vars, para_vars, geom_vars, sn_vars, data_vars,
+        //              control_vars, solvar_vars, dim_sweep_vars, ich, id,
+        //              d1, d2, d3, d4, jd, kd, jlo, klo, jhi, khi, jst, kst,
+        //              i1, i2, oct, g, ierr );
+        dim3_sweep_cuda ( input_vars, 
+                     para_vars->firsty, para_vars->lasty, para_vars->firstz, para_vars->lastz,
+                     geom_vars, sn_vars, data_vars,
                      control_vars, solvar_vars, dim_sweep_vars, ich, id,
                      d1, d2, d3, d4, jd, kd, jlo, klo, jhi, khi, jst, kst,
                      i1, i2, oct, g, ierr );
