@@ -21,21 +21,21 @@ void octsweep ( input_data *input_vars, para_data *para_vars, geom_data *geom_va
 /***********************************************************************
  * Local variables
  ***********************************************************************/
-    int id, oct, ich, d1, d2, d3, d4, i1, i2;
+    int id, octant, idx_chunk, d1, d2, d3, d4, i1, i2;
 
 /***********************************************************************
  * Determine octant and chunk index.
  ***********************************************************************/
     id = 1 + (iop-1)/NC;
-    oct = id + 2*(jd-1) + 4*(kd-1);
+    octant = id + 2*(jd-1) + 4*(kd-1);
 
     if ( id == 1 )
     {
-        ich = NC - iop + 1;
+        idx_chunk = NC - iop + 1;
     }
     else
     {
-        ich = iop - NC;
+        idx_chunk = iop - NC;
     }
 
 /***********************************************************************
@@ -66,19 +66,19 @@ void octsweep ( input_data *input_vars, para_data *para_vars, geom_data *geom_va
     {
         dim1_sweep ( input_vars, geom_vars, sn_vars, data_vars,
                      control_vars, solvar_vars, dim_sweep_vars,
-                     id, oct, d1, d2, d3, d4, i1, i2, g, ierr );
+                     id, octant, d1, d2, d3, d4, i1, i2, g, ierr );
     }
     else
     {
         // dim3_sweep ( input_vars, para_vars, geom_vars, sn_vars, data_vars,
-        //              control_vars, solvar_vars, dim_sweep_vars, ich, id,
+        //              control_vars, solvar_vars, dim_sweep_vars, idx_chunk, id,
         //              d1, d2, d3, d4, jd, kd, jlo, klo, jhi, khi, jst, kst,
-        //              i1, i2, oct, g, ierr );
+        //              i1, i2, octant, g, ierr );
         dim3_sweep_cuda ( input_vars, 
                      para_vars->firsty, para_vars->lasty, para_vars->firstz, para_vars->lastz,
                      geom_vars, sn_vars, data_vars,
-                     control_vars, solvar_vars, dim_sweep_vars, ich, id,
+                     control_vars, solvar_vars, dim_sweep_vars, idx_chunk, id,
                      d1, d2, d3, d4, jd, kd, jlo, klo, jhi, khi, jst, kst,
-                     i1, i2, oct, g, ierr );
+                     i1, i2, octant, g, ierr );
     }
 }

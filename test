@@ -206,7 +206,7 @@ def compare(out_file_1, out_file_2):
         subprocess.call(["diff", "-s", "-y", os.path.join(OUT_DIR, out_file_1), os.path.join(OUT_DIR, out_file_2)])
 
 def average(args):
-    average_time_for(args.i, args.np, args.cpu, args.gpu, args.blocks, args.threads)
+    average_time_for(args.i, args.np, args.cpu, args.gpu)
 
 def average_time_for(input_file, proc, cpu, gpu):
     if ((cpu is False) and (gpu is False)) or ((cpu is True) and (gpu is True)):
